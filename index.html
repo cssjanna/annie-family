@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annie’s Family Quiz</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: #1565C0;
+      font-weight: 600;
+    }
+    .progress {
+      text-align: center;
+      margin-bottom: 2.8rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #1565C0;
+    }
+    .question {
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      font-size: 1.25rem;
+      background-color: #1565C0;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      /* Remove blur */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .answers button {
+      display: block;
+      margin: 0.25rem 0;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      background-color: #2196F3;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      text-align: left;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .answers button:hover:not(.disabled) {
+      background-color: #1976D2;
+    }
+    .answers button.correct {
+      background-color: #4caf50;
+      color: white;
+      cursor: default;
+    }
+    .answers button.incorrect {
+      background-color: #f44336;
+      color: white;
+      cursor: default;
+    }
+    .answers button.disabled {
+      pointer-events: none;
+    }
+    .feedback {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      font-weight: 600;
+      min-height: 40px;
+      transition: opacity 0.3s ease;
+    }
+    .score {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    #tryAgain, #nextBtn {
+      display: none;
+      margin: 1.5rem auto 0 auto;
+      padding: 0.8rem 1.8rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #4caf50;
+      color: white;
+      transition: background-color 0.3s;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+    }
+    #tryAgain:hover, #nextBtn:hover {
+      background-color: #45a049;
+    }
+    @media (max-width: 480px) {
+      body {
+        margin: 1rem;
+        padding: 0.5rem;
+      }
+      .answers button {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Annie’s Family Quiz</h1>
+  <div class="progress" id="progress"></div>
+  <div id="quizContainer"></div>
+  <div class="feedback" id="feedback"></div>
+  <button id="nextBtn">Next</button>
+  <button id="tryAgain">Try Again</button>
+
+  <script>
+    const quizData = [
+      {
+        question: "What does Annie love doing?",
+        answers: [
+          "🎨 Drawing",
+          "🏀 Playing basketball",
+          "🎵 Writing songs for people she loves",
+          "🍪 Baking treats for family and friends"
+          
+        ],
+        correct: 2
+      },
+      {
+        question: "What is CJ known for?",
+        answers: [
+          "🎂 Baking the best birthday cakes",
+          "🛍️ Always carrying shopping bags",
+          "📚 Reading tons of old books",
+          "💡 Coming up with good ideas"
+
+        ],
+        correct: 3
+      },
+      {
+        question: "What does Sindu love to do with a toy?",
+        answers: [
+          "🐕‍🦺 Grab it and be chased",
+          "⚽ Play fetch",
+          "🙈 Hide it",
+          "🦴 Lie down and chew it"
+        ],
+        correct: 0
+      },
+      {
+        question: "What does Shakthi enjoy doing after running around?",
+        answers: [
+          "😴 Sleeping",
+          "🐾 Flopping on the ground",
+          "🥦 Eating treats",
+          "🦘 Jumping on people"
+        ],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const quizContainer = document.getElementById("quizContainer");
+    const progressText = document.getElementById("progress");
+    const feedback = document.getElementById("feedback");
+    const tryAgainBtn = document.getElementById("tryAgain");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function loadQuestion() {
+      feedback.textContent = "";
+      nextBtn.style.display = "none";
+      progressText.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+
+      const q = quizData[currentQuestion];
+      let answersHTML = "";
+      q.answers.forEach((answer, i) => {
+        answersHTML += `<button onclick="selectAnswer(this, ${i})">${answer}</button>`;
+      });
+
+      quizContainer.innerHTML = `
+        <div class="question">${q.question}</div>
+        <div class="answers">${answersHTML}</div>
+      `;
+    }
+
+    function selectAnswer(button, selectedIndex) {
+      const q = quizData[currentQuestion];
+      const buttons = document.querySelectorAll(".answers button");
+
+      // Disable all buttons after answer
+      buttons.forEach(btn => btn.classList.add("disabled"));
+
+      if (selectedIndex === q.correct) {
+        score++;
+        button.classList.add("correct");
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "#4caf50";
+      } else {
+        button.classList.add("incorrect");
+        buttons[q.correct].classList.add("correct");
+        feedback.textContent = `❌ Oops! The correct answer is: "${q.answers[q.correct]}"`;
+        feedback.style.color = "#f44336";
+      }
+      nextBtn.style.display = "block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    });
+
+    function showScore() {
+      progressText.textContent = "";
+      feedback.textContent = "";
+      quizContainer.innerHTML = `
+        <div class="score">🎉 Your score: ${score} out of ${quizData.length}</div>
+      `;
+      nextBtn.style.display = "none";
+      tryAgainBtn.style.display = "block";
+      if (score === quizData.length) {
+        alert("🎉 Perfect score! You're amazing!");
+      }
+    }
+
+    tryAgainBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      score = 0;
+      tryAgainBtn.style.display = "none";
+      loadQuestion();
+    });
+
+    // Start the quiz
+    loadQuestion();
+  </script>
+</body>
+</html>
