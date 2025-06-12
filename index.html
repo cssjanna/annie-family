@@ -9,7 +9,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       max-width: 600px;
-      margin: 2rem auto;
+      margin: 0rem auto;
       padding: 1rem;
     }
     h1 {
@@ -33,8 +33,6 @@
       color: white;
       padding: 10px 15px;
       border-radius: 8px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
     .answers button {
       display: block;
@@ -80,25 +78,104 @@
       text-align: center;
       font-size: 1.3rem;
       margin-top: 1rem;
+      margin-bottom: 0.05rem;
       font-weight: 600;
       color: #333;
     }
-    #tryAgain, #nextBtn {
+    .button-container {
+      text-align: center;
+      margin-top: 0rem;
       display: none;
-      margin: 1.5rem auto 0 auto;
+    }
+    /* Added style for individual question retry button */
+    #retryQuestionBtn {
+        padding: 0.8rem 1.8rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background-color: #FFC107;
+        color: black;
+        transition: background-color 0.3s;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        margin: 0.5rem;
+        display: none;
+    }
+    #retryQuestionBtn:hover {
+        background-color: #FFA000;
+    }
+    /* Styles for Retake Quiz button, Next, Start buttons */
+    #tryAgain, #nextBtn, #startBtn {
       padding: 0.8rem 1.8rem;
       font-size: 1.1rem;
       cursor: pointer;
       border: none;
       border-radius: 6px;
-      background-color: #4caf50;
+      background-color: #4caf50; /* Green theme color */
       color: white;
       transition: background-color 0.3s;
       font-family: 'Poppins', sans-serif;
       font-weight: 600;
+      margin: 0.5rem; /* Default margin for these buttons */
     }
-    #tryAgain:hover, #nextBtn:hover {
+    #tryAgain:hover, #nextBtn:hover, #startBtn:hover {
       background-color: #45a049;
+    }
+    /* Specific override for #tryAgain to control its top margin */
+    #tryAgain {
+      margin-top: 0rem;
+    }
+    /* Specific override for Start button to keep its blue color */
+    #startBtn {
+      background-color: #1565C0;
+    }
+    #startBtn:hover {
+      background-color: #0d3d82;
+    }
+    #funFactSection {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+    }
+    #funFactInput {
+      width: 80%;
+      max-width: 400px;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      resize: vertical;
+      font-family: 'Poppins', sans-serif;
+    }
+    #submitQuizFactBtn { /* Style for the new submission button */
+      margin-top: 0.8rem; /* Adjusted for spacing below textarea */
+      padding: 0.8rem 1.8rem;
+      font-weight: 600;
+      background-color: #4CAF50; /* Green theme */
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      transition: background-color 0.3s;
+    }
+    #submitQuizFactBtn:hover {
+      background-color: #45a049;
+    }
+    #thankYouMessage {
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #4caf50;
+    }
+    #submissionStatus {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+      color: #555;
     }
     @media (max-width: 480px) {
       body {
@@ -117,162 +194,339 @@
 </head>
 <body>
 
-  <div id="startScreen" style="text-align: center; margin-top: 3rem;">
+  <div id="startScreen" style="text-align: center; margin-top: 0rem;">
     <h1>Welcome to Annie’s Family Quiz!</h1>
     <img src="https://i.ibb.co/wNVwfW4B/Bitmoji-Family-Pic.jpg" alt="Family Photo" style="width: 450px; height: auto; margin: 1rem 0;">
     <p style="font-size: 1.1rem; max-width: 500px; margin: 1rem auto;">
-      See how well you know Annie, CJ, Sindu, and Shakthi! Click Start Quiz below to begin.
+      See how well you know Annie, CJ, Sindu, and Shakthi! Type your name below, then click Start Quiz<br />or press Enter to begin.
     </p>
-    <button id="startBtn" style="
-      padding: 0.8rem 1.8rem;
-      font-size: 1.1rem;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background-color: #1565C0;
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-    ">Start Quiz</button>
+    <input type="text" id="userNameInput" placeholder="What should we call you?" style="padding: 0.5rem; width: 80%; max-width: 300px;" />
+    <button id="startBtn">Start Quiz</button>
   </div>
 
   <div id="quizSection" style="display: none;">
     <h1>Annie’s Family Quiz</h1>
     <div class="progress" id="progress"></div>
     <div id="quizContainer"></div>
+    <div class="feedback" id="feedback"></div>
   </div>
-  
-  <div class="feedback" id="feedback"></div>
-  <button id="nextBtn">Next</button>
-  <button id="tryAgain">Try Again</button>
 
-  <script>
-    const quizData = [
-      {
-        question: "What does Annie love doing?",
-        answers: [
-          "🎨 Drawing",
-          "🏀 Playing basketball",
-          "🎵 Writing songs for people she loves",
-          "🍪 Baking treats for family and friends"
-        ],
-        correct: 2
-      },
-      {
-        question: "What is CJ known for?",
-        answers: [
-          "🎂 Baking the best birthday cakes",
-          "🛍️ Always carrying shopping bags",
-          "📚 Reading tons of old books",
-          "💡 Coming up with good ideas"
-        ],
-        correct: 3
-      },
-      {
-        question: "What does Sindu love to do with a toy?",
-        answers: [
-          "🐕‍🦺 Grab it and be chased",
-          "⚽ Play fetch",
-          "🙈 Hide it",
-          "🦴 Lie down and chew it"
-        ],
-        correct: 0
-      },
-      {
-        question: "What does Shakthi enjoy doing after running around?",
-        answers: [
-          "😴 Sleeping",
-          "🐾 Flopping on the ground",
-          "🥦 Eating treats",
-          "🦘 Jumping on people"
-        ],
-        correct: 1
+  <div class="button-container" id="navButtons">
+    <button id="nextBtn">Next</button>
+    <button id="retryQuestionBtn">Try Again</button>
+    <!-- The #tryAgain button is purposefully commented out from this general nav area -->
+    <!-- It is not part of the final results page message requirement -->
+  </div>
+
+  <!-- Fun Fact submission section -->
+  <div id="funFactSection">
+    <p>Want to share a fun fact about Annie’s family? Type it below, then click "Submit Quiz & Fact"! Check back later to see if your idea made it into a quiz question.</p> <!-- UPDATED TEXT HERE -->
+    <textarea id="funFactInput" rows="3" placeholder="Share something fun about Annie’s family…"></textarea><br />
+    <div id="thankYouMessage"></div>
+    <div id="submissionStatus"></div>
+    <button id="submitQuizFactBtn" style="display: none;">Submit Quiz & Fact</button>
+  </div>
+
+
+<script>
+  // ** IMPORTANT: Replace this with your actual Google Apps Script Web App URL **
+  // Go to your Google Apps Script project -> Deploy -> New deployment -> Select 'Web app'
+  // Set 'Execute as:' to 'Me', 'Who has access:' to 'Anyone', then deploy and copy the URL.
+  // The URL should look something like: "https://script.google.com/macros/s/ABCDEFGHIJKL/exec"
+  const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbz2zaqB2PrmT1OAyrsLMun6-QyKtAHgWWB9hbEYrkJqFQb4hYIm9kTwAqcqeskVHANR/exec";
+
+
+  let userName = "";
+  let questionInitialCorrectness = []; // Stores true/false based on the very first selection for each question
+  let questionAttemptHistory = []; // Stores all attempts for each question
+  let currentQuestion = 0;
+  let score = 0;
+
+  const quizData = [
+    {
+      question: "What does Annie enjoy doing the most?",
+      answers: [
+        "🖍️ Coloring",
+        "🏀 Playing basketball",
+        "🎵 Writing songs for her family",
+        "🍪 Preparing tasty treats"
+      ],
+      correct: 2,
+      feedbackCorrect: (name) => `Right on, ${name}! Annie’s big passion is writing songs for everyone she loves. 🎶`,
+      feedbackIncorrect: (name) => `Not quite, ${name}. Annie loves songwriting.`
+    },
+    {
+      question: "What’s one thing Annie loves most about CJ?",
+      answers: [
+        "🚗 He’s passionate about cars",
+        "🎮 He enjoys playing video games",
+        "🛠️ He’s handy around the house",
+        "💡 He comes up with great ideas"
+      ],
+      correct: 3,
+      feedbackCorrect: (name) => `Ding ding ding! CJ’s always thinking ahead and dreaming up bright ideas for the future! ✨`,
+      feedbackIncorrect: (name) => `Almost, ${name}. Let CJ's clever thoughts guide you.`
+    },
+    {
+      question: "What does Sindu love to do with a toy?",
+      answers: [
+        "🐕‍🦺 Grab it and be chased",
+        "⚽ Play fetch",
+        "🙈 Hide it",
+        "🦴 Lie down and chew it"
+      ],
+      correct: 0,
+      feedbackCorrect: (name) => `You’re top dog, ${name}! Sindu likes to be chased. 🐕`,
+      feedbackIncorrect: (name) => `You're barking up the wrong tree, ${name}. Don't worry, you’ll chase down the right answer soon!`
+    },
+    {
+      question: "What does Shakthi enjoy doing after running around?",
+      answers: [
+        "😴 Sleeping",
+        "🐾 Flopping on the ground",
+        "🥦 Eating treats",
+        "🦘 Jumping on people"
+      ],
+      correct: 1,
+      feedbackCorrect: (name) => `You sniffed out the right answer, ${name}! After Shakthi's zoomies, she's down for a good flop. 🐶`,
+      feedbackIncorrect: (name) => `That guess didn’t land, ${name}. But Shakthi sure does—right on the ground!`
+    }
+  ];
+
+  const startScreen = document.getElementById("startScreen");
+  const quizSection = document.getElementById("quizSection");
+  const progressText = document.getElementById("progress");
+  const quizContainer = document.getElementById("quizContainer");
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextBtn");
+  const retryQuestionBtn = document.getElementById("retryQuestionBtn");
+  // const tryAgainBtn = document.getElementById("tryAgain"); // Old button - left commented out as per original state
+  const navButtons = document.getElementById("navButtons");
+  const userNameInput = document.getElementById("userNameInput");
+  const funFactSection = document.getElementById("funFactSection");
+  const funFactInput = document.getElementById("funFactInput");
+  const thankYouMessage = document.getElementById("thankYouMessage");
+  const submissionStatus = document.getElementById("submissionStatus");
+  const submitQuizFactBtn = document.getElementById("submitQuizFactBtn");
+
+  // On start, hide all buttons except start
+  nextBtn.style.display = "none";
+  retryQuestionBtn.style.display = "none";
+  // tryAgainBtn.style.display = "none"; // Old button - left commented out
+  navButtons.style.display = "none";
+  submitQuizFactBtn.style.display = "none"; // Ensure hidden initially
+
+  function startQuiz() {
+    userName = userNameInput.value.trim();
+    if (!userName) {
+      feedback.textContent = "Please enter your name to start the quiz.";
+      return;
+    }
+    startScreen.style.display = "none";
+    quizSection.style.display = "block";
+    navButtons.style.display = "block";
+    // tryAgainBtn.style.display = "none"; // Old button - left commented out
+    nextBtn.style.display = "none";
+    retryQuestionBtn.style.display = "none";
+    submitQuizFactBtn.style.display = "none";
+    funFactSection.style.display = "none";
+    currentQuestion = 0;
+    score = 0;
+    questionInitialCorrectness = []; // Reset initial correctness
+    questionAttemptHistory = []; // Reset full attempt history
+    feedback.innerHTML = "";
+    submissionStatus.textContent = "";
+    thankYouMessage.textContent = ""; // Ensure thankYouMessage is cleared here
+    showQuestion();
+  }
+
+  function showQuestion() {
+    feedback.innerHTML = "";
+    nextBtn.style.display = "none";
+    retryQuestionBtn.style.display = "none";
+    const q = quizData[currentQuestion];
+    progressText.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+    quizContainer.innerHTML =
+      `<div class="question">${q.question}</div>
+      <div class="answers"></div>`;
+
+    const answersDiv = quizContainer.querySelector(".answers");
+    q.answers.forEach((answer, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = answer;
+      btn.addEventListener("click", () => selectAnswer(i));
+      answersDiv.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(selectedIndex) {
+    console.log(`Question ${currentQuestion + 1}: User selected index ${selectedIndex}`);
+    const q = quizData[currentQuestion];
+    const buttons = quizContainer.querySelectorAll(".answers button");
+
+    buttons.forEach(btn => btn.classList.add("disabled")); // Disable all buttons after selection
+
+    const isCorrectAttempt = (selectedIndex === q.correct);
+    const selectedAnswerText = q.answers[selectedIndex];
+
+    // Initialize history array for this question if it doesn't exist
+    if (!questionAttemptHistory[currentQuestion]) {
+        questionAttemptHistory[currentQuestion] = [];
+    }
+    // Record this attempt in the history
+    questionAttemptHistory[currentQuestion].push({
+        text: selectedAnswerText,
+        isCorrect: isCorrectAttempt
+    });
+    console.log(`Recorded attempt for Q${currentQuestion + 1}: ${selectedAnswerText} (${isCorrectAttempt ? 'Correct' : 'Incorrect'})`);
+
+
+    // Set initial correctness only on the very first selection for this question
+    if (questionInitialCorrectness[currentQuestion] === undefined) {
+        questionInitialCorrectness[currentQuestion] = isCorrectAttempt;
+        console.log(`Initial attempt for Q${currentQuestion + 1} was: ${questionInitialCorrectness[currentQuestion] ? 'Correct' : 'Incorrect'}`);
+    } else {
+        console.log(`Initial attempt for Q${currentQuestion + 1} already recorded as: ${questionInitialCorrectness[currentQuestion] ? 'Correct' : 'Incorrect'}`);
+    }
+
+
+    if (isCorrectAttempt) { // Use the isCorrectAttempt for immediate feedback logic
+      score++;
+      feedback.innerHTML = q.feedbackCorrect(userName);
+      buttons[selectedIndex].classList.add("correct");
+
+      if (currentQuestion < quizData.length - 1) {
+        nextBtn.style.display = "inline-block";
+        nextBtn.textContent = "Next";
+        retryQuestionBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "inline-block";
+        nextBtn.textContent = "View Results";
+        // tryAgainBtn.style.display = "none"; // Old button - left commented out
+        retryQuestionBtn.style.display = "none";
       }
-    ];
-
-    let currentQuestion = 0;
-    let score = 0;
-
-    const quizContainer = document.getElementById("quizContainer");
-    const progressText = document.getElementById("progress");
-    const feedback = document.getElementById("feedback");
-    const tryAgainBtn = document.getElementById("tryAgain");
-    const nextBtn = document.getElementById("nextBtn");
-
-    function loadQuestion() {
-      feedback.textContent = "";
+    } else {
+      feedback.innerHTML = q.feedbackIncorrect(userName);
+      buttons[selectedIndex].classList.add("incorrect");
+      retryQuestionBtn.style.display = "inline-block";
       nextBtn.style.display = "none";
-      progressText.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+    }
+  }
 
-      const q = quizData[currentQuestion];
-      let answersHTML = "";
-      q.answers.forEach((answer, i) => {
-        answersHTML += `<button onclick="selectAnswer(this, ${i})">${answer}</button>`;
+  function showScoreAndFunFact() {
+    quizContainer.innerHTML = "";
+    progressText.textContent = "";
+    feedback.innerHTML = "";
+
+    const scoreText = document.createElement("div");
+    scoreText.className = "score";
+    scoreText.textContent = `${userName}, your final score is ${score} out of ${quizData.length}.`;
+    quizContainer.appendChild(scoreText);
+
+    navButtons.style.display = "none"; // Hide regular nav buttons on results page
+    // tryAgainBtn.style.display = "inline-block"; // Old button - left commented out
+    nextBtn.style.display = "none";
+    retryQuestionBtn.style.display = "none";
+    submitQuizFactBtn.style.display = "inline-block"; // Show the submit button
+
+    funFactSection.style.display = "block";
+    funFactInput.value = ""; // Clear fun fact input
+    submissionStatus.textContent = "";
+    // Removed old thankYouMessage.textContent assignment
+  }
+
+  async function sendQuizResultsToSheet() {
+    console.log("sendQuizResultsToSheet function started.");
+    submissionStatus.textContent = "Submitting your results...";
+    submissionStatus.style.color = "#555";
+
+    try {
+      const mappedAnswers = {};
+      const answerCorrectness = {};
+
+      quizData.forEach((q, index) => {
+        const answerKey = `q${index + 1}Answer`; // This will now hold the full attempt history string
+        const statusKey = `q${index + 1}Status`; // This will hold the initial correctness status
+
+        console.log(`--- Question ${index + 1} Processing for Submission ---`);
+        console.log(`Full attempt history for Q${index + 1}:`, questionAttemptHistory[index]);
+        console.log(`Stored initial correctness for Q${index + 1}: ${questionInitialCorrectness[index]}`);
+
+        let formattedAttempts = "Not answered";
+        if (questionAttemptHistory[index] && questionAttemptHistory[index].length > 0) {
+            formattedAttempts = questionAttemptHistory[index].map((attempt, attemptIndex) => {
+                const status = attempt.isCorrect ? "Correct" : "Incorrect";
+                return `Attempt ${attemptIndex + 1}: "${attempt.text}" (${status})`;
+            }).join("; "); // Join multiple attempts with a semicolon for readability in one cell
+        }
+        mappedAnswers[answerKey] = formattedAttempts;
+
+        // Use the stored initial correctness for the status column
+        answerCorrectness[statusKey] = questionInitialCorrectness[index] !== undefined
+                                      ? (questionInitialCorrectness[index] ? "Correct" : "Incorrect")
+                                      : "Not answered"; // If no attempts, then not answered
+
+        console.log(`Formatted answer history for Q${index + 1}: ${mappedAnswers[answerKey]}`);
+        console.log(`Final calculated status for Q${index + 1} for submission: ${answerCorrectness[statusKey]}`);
       });
 
-      quizContainer.innerHTML = `
-        <div class="question">${q.question}</div>
-        <div class="answers">${answersHTML}</div>
-      `;
+      const payload = {
+        userName: userName,
+        score: score, // This is already correctly 'score' in the payload
+        ...mappedAnswers,
+        ...answerCorrectness, // Include correctness status in the payload
+        funFact: funFactInput.value.trim()
+      };
+
+      console.log("Full Payload being sent to Google Sheet:", payload);
+
+      const response = await fetch(googleAppsScriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("Fetch request sent. Response status (no-cors mode):", response.status);
+
+      submissionStatus.textContent = "Your results have been submitted successfully! 🎉";
+      submissionStatus.style.color = "#4caf50";
+
+    } catch (error) {
+      console.error("Error submitting quiz results:", error);
+      submissionStatus.textContent = "Failed to submit results. Please try again later. 😔";
+      submissionStatus.style.color = "#f44336";
     }
+  }
 
-    function selectAnswer(button, selectedIndex) {
-      const q = quizData[currentQuestion];
-      const buttons = document.querySelectorAll(".answers button");
-
-      // Disable all buttons after answer
-      buttons.forEach(btn => btn.classList.add("disabled"));
-
-      if (selectedIndex === q.correct) {
-        score++;
-        button.classList.add("correct");
-        feedback.textContent = "✅ Correct!";
-        feedback.style.color = "#4caf50";
-      } else {
-        button.classList.add("incorrect");
-        buttons[q.correct].classList.add("correct");
-        feedback.textContent = `❌ Oops! The correct answer is: "${q.answers[q.correct]}"`;
-        feedback.style.color = "#f44336";
-      }
-      nextBtn.style.display = "block";
-    }
-
-    nextBtn.addEventListener("click", () => {
+  nextBtn.addEventListener("click", () => {
+    if (currentQuestion < quizData.length - 1) {
       currentQuestion++;
-      if (currentQuestion < quizData.length) {
-        loadQuestion();
-      } else {
-        showScore();
-      }
-    });
-
-    function showScore() {
-      progressText.textContent = "";
-      feedback.textContent = "";
-      quizContainer.innerHTML = `
-        <div class="score">🎉 Your score: ${score} out of ${quizData.length}</div>
-      `;
-      nextBtn.style.display = "none";
-      tryAgainBtn.style.display = "block";
-      if (score === quizData.length) {
-        alert("🎉 Perfect score! You're amazing!");
-      }
+      showQuestion();
+    } else {
+      showScoreAndFunFact();
     }
+  });
 
-    tryAgainBtn.addEventListener("click", () => {
-      currentQuestion = 0;
-      score = 0;
-      tryAgainBtn.style.display = "none";
-      loadQuestion();
-    });
+  retryQuestionBtn.addEventListener("click", () => {
+    showQuestion();
+  });
 
-    // Start the quiz when clicking the Start button
-    document.getElementById("startBtn").addEventListener("click", () => {
-      document.getElementById("startScreen").style.display = "none";
-      document.getElementById("quizSection").style.display = "block";
-      loadQuestion();
-    });
-  </script>
+  submitQuizFactBtn.addEventListener("click", async () => {
+    console.log("Submit Quiz & Fact button clicked! Initiating submission...");
+    await sendQuizResultsToSheet();
+  });
 
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
+
+  userNameInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent default form submission
+      startQuiz();
+    }
+  });
+</script>
 </body>
 </html>
